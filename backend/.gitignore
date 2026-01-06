@@ -29,6 +29,4 @@ local_settings.py
 .DS_Store
 Thumbs.db
 
-# Environment variables
-.env
-.env.local
+staticfiles/
