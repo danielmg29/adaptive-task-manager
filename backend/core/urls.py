@@ -1,22 +1,18 @@
 # WHAT: URL routing for core app
 # WHY: Maps URLs to views (like a phone directory)
 
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import TaskViewSet
+from django.urls import path
+from .schema.views import get_schema_view, get_all_schemas_view
+from .views.dynamic import dynamic_list_handler, dynamic_detail_handler
 
-# WHAT: Router automatically creates URL patterns for ViewSets
-# WHY: Instead of manually defining 5 URLs, router does it automatically
-router = DefaultRouter()
-router.register(r'tasks', TaskViewSet, basename='task')
-
-# This creates:
-# GET    /api/tasks/       → list()
-# POST   /api/tasks/       → create()
-# GET    /api/tasks/{id}/  → retrieve()
-# PUT    /api/tasks/{id}/  → update()
-# DELETE /api/tasks/{id}/  → destroy()
+# WHY: Register the app in which the schema urls have been registered
+app_name = 'core'
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('schema/<str:model_name>/', get_schema_view, name='schema'),
+    path('schema/all/', get_all_schemas_view, name='all-schemas'),
+
+    # Dynamic CRUD endpoints
+    path('<str:model_name>/', dynamic_list_handler, name='model-list'),
+    path('<str:model_name>/<int:pk>/', dynamic_detail_handler, name='model-detail'),
 ]
