@@ -1,114 +1,79 @@
 /**
- * Tasks Page
+ * Tasks Page (Performance Optimized)
  * 
- * Complete CRUD interface for Task model.
- * Demonstrates Adaptive Convergence in action:
- * - DynamicForm auto-generates from Task schema
- * - DynamicTable auto-generates from Task schema
- * - Add fields to Task model → UI updates automatically
+ * Now using React Query for:
+ * - Automatic caching
+ * - Optimistic updates
+ * - Background refetching
+ * - Request deduplication
  */
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { DynamicForm } from '@/components/DynamicForm';
 import { DynamicTable } from '@/components/DynamicTable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useCRUD } from '@/hooks/useCRUD';
+import { Pagination } from '@/components/Pagination';
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Fetch tasks from backend
-  const fetchTasks = async () => {
-    setLoading(true);
+  // Use React Query for data management
+  const {
+    data: tasks,
+    pagination,
+    isLoading,
+    create,
+    update,
+    remove,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useCRUD('Task', {
+    page: currentPage,
+    pageSize: 50,
+  });
 
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${apiUrl}/api/Task/`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch tasks');
-      }
-
-      const result = await response.json();
-      setTasks(result.data || []);
-    } catch (error) {
-      console.error('Error fetching tasks:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Load tasks on mount
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
-  // Handle form submission (create or update)
+  // Handle form submission
   const handleSubmit = async (data: Record<string, any>) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-    try {
-      const url = editingTask
-        ? `${apiUrl}/api/Task/${editingTask.id}/`
-        : `${apiUrl}/api/Task/`;
-
-      const method = editingTask ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
+    if (editingTask) {
+      // Update existing task
+      update(
+        { id: editingTask.id, data },
+        {
+          onSuccess: () => {
+            setShowForm(false);
+            setEditingTask(null);
+          },
+        }
+      );
+    } else {
+      // Create new task
+      create(data, {
+        onSuccess: () => {
+          setShowForm(false);
         },
-        body: JSON.stringify(data),
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to save task');
-      }
-
-      // Success: close form and refresh
-      setShowForm(false);
-      setEditingTask(null);
-      fetchTasks();
-    } catch (error) {
-      console.error('Error saving task:', error);
-      alert('Failed to save task. Please try again.');
     }
   };
 
-  // Handle edit button click
+  // Handle edit
   const handleEdit = (task: any) => {
     setEditingTask(task);
     setShowForm(true);
   };
 
   // Handle delete
-  const handleDelete = async (id: number) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-    try {
-      const response = await fetch(`${apiUrl}/api/Task/${id}/`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete task');
-      }
-
-      // Success: refresh
-      fetchTasks();
-    } catch (error) {
-      console.error('Error deleting task:', error);
-      alert('Failed to delete task. Please try again.');
-    }
+  const handleDelete = (id: number) => {
+    remove(id);
   };
 
-  // Handle create new button
+  // Handle create new
   const handleCreateNew = () => {
     setEditingTask(null);
     setShowForm(true);
@@ -125,7 +90,7 @@ export default function TasksPage() {
       <div className="mb-8">
         <h1 className="text-4xl font-bold tracking-tight">Task Management</h1>
         <p className="text-muted-foreground mt-2">
-          Manage your tasks with auto-generated forms and tables.
+          Manage your tasks with optimized caching and instant updates.
         </p>
       </div>
 
@@ -144,7 +109,15 @@ export default function TasksPage() {
                 initialData={editingTask || {}}
                 onSubmit={handleSubmit}
                 onCancel={handleCancel}
-                submitLabel={editingTask ? 'Update Task' : 'Create Task'}
+                submitLabel={
+                  editingTask
+                    ? isUpdating
+                      ? 'Updating...'
+                      : 'Update Task'
+                    : isCreating
+                    ? 'Creating...'
+                    : 'Create Task'
+                }
               />
             </CardContent>
           </Card>
@@ -154,8 +127,16 @@ export default function TasksPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>All Tasks</CardTitle>
-              <Button onClick={handleCreateNew} disabled={showForm}>
+              <div>
+                <CardTitle>All Tasks</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {pagination.totalCount} total tasks
+                </p>
+              </div>
+              <Button
+                onClick={handleCreateNew}
+                disabled={showForm || isCreating}
+              >
                 {showForm ? 'Form Open' : 'Create New Task'}
               </Button>
             </div>
@@ -164,11 +145,20 @@ export default function TasksPage() {
             <DynamicTable
               modelName="Task"
               data={tasks}
-              loading={loading}
+              loading={isLoading}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              onRefresh={fetchTasks}
             />
+
+            {/* Pagination Controls */}
+            {pagination.totalPages > 1 && (
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                onPageChange={setCurrentPage}
+                disabled={isLoading}
+              />
+            )}
           </CardContent>
         </Card>
       </div>
