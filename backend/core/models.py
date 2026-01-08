@@ -25,7 +25,23 @@ class Task(models.Model):
     # FIELD: priority
     # TYPE: String with maximum 200 characters
     # REQUIRED: No (blank=True means optional)
-    priority = models.CharField(max_length=200, blank=True)
+    priority_choices = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+    ]
+    priority = models.CharField(
+        max_length=200,
+        blank=True,
+        choices=priority_choices,
+    )
+
+    tags = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Comma-separated tags"
+    )
     
     # FIELD: completed
     # TYPE: Boolean (True/False)
