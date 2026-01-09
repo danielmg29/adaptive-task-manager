@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useIsMobile } from '@/hooks/useBreakpoint';
 import { useEffect, useState } from 'react';
 
 interface DynamicTableProps {
@@ -45,6 +46,7 @@ export function DynamicTable({
   onRefresh,
 }: DynamicTableProps) {
   const { schema, loading: schemaLoading, error } = useSchema(modelName);
+  const isMobile = useIsMobile();
 
   // Combined loading state
   const isLoading = loading || schemaLoading;
@@ -96,9 +98,74 @@ export function DynamicTable({
       field.type !== 'BigAutoField' &&
       field.name !== 'updated_at'
   );
+  // Mobile Card View
+  if (isMobile) {
+    return (
+      <div className="space-y-3">
+        {data.map((item, index) => (
+          <div
+            key={item.id || index}
+            className="rounded-lg border bg-card p-4 space-y-3 interactive-card"
+          >
+            {/* ID Badge */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono text-muted-foreground">
+                #{item.id}
+              </span>
+              {(onEdit || onDelete) && (
+                <div className="flex gap-2">
+                  {onEdit && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onEdit(item)}
+                    >
+                      Edit
+                    </Button>
+                  )}
+                  {onDelete && (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        if (
+                          confirm(
+                            `Delete this ${schema.verbose_name.toLowerCase()}?`
+                          )
+                        ) {
+                          onDelete(item.id);
+                        }
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
 
+            {/* Fields */}
+            <div className="space-y-2">
+              {displayFields.slice(0, 4).map((field) => (
+                <div key={field.name} className="text-sm">
+                  <span className="text-muted-foreground">
+                    {formatFieldLabel(field.name)}:{' '}
+                  </span>
+                  <span className="font-medium">
+                    {formatCellValue(item[field.name], field)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Desktop Table View (existing code)
   return (
-    <div className="rounded-lg border">
+    <div className="rounded-lg border responsive-table">
       <Table>
         <TableHeader>
           <TableRow>

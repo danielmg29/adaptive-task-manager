@@ -64,45 +64,45 @@ export function Pagination({
     if (totalPages <= 1) {
         return null; // Don't show pagination for single page
     }
-return (
-    <div className="flex items-center justify-center gap-2 mt-4">
-        {/* Previous Button */}
-        <Button
-        variant="outline"
-        size="sm"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1 || disabled}
-        >
-            Previous
-        </Button>
-        {/* Page Numbers */}
-        {getPageNumbers().map((page, index) =>
-            typeof page === 'number' ? (
+    return (
+        <div className="flex items-center justify-center gap-2 mt-4">
+            {/* Previous Button */}
             <Button
-                key={index}
-                variant={page === currentPage ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => onPageChange(page)}
-                disabled={disabled}
-            >
-                {page}
-            </Button>
-            ) : (
-            <span key={index} className="px-2 text-muted-foreground">
-                {page}
-            </span>
-            )
-        )}
-
-        {/* Next Button */}
-        <Button
             variant="outline"
             size="sm"
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || disabled}
-        >
-            Next
-        </Button>
-    </div>
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1 || disabled}
+            >
+                Previous
+            </Button>
+            {/* Page Numbers */}
+            {getPageNumbers().map((page, index) =>
+                typeof page === 'number' ? (
+                <Button
+                    key={index}
+                    variant={page === currentPage ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => onPageChange(page)}
+                    disabled={disabled}
+                >
+                    {page}
+                </Button>
+                ) : (
+                <span key={index} className="px-2 text-muted-foreground">
+                    {page}
+                </span>
+                )
+            )}
+
+            {/* Next Button */}
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={currentPage === totalPages || disabled}
+            >
+                Next
+            </Button>
+        </div>
     );
 }

@@ -17,6 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCRUD } from '@/hooks/useCRUD';
 import { Pagination } from '@/components/Pagination';
+import { ResponsiveContainer } from '@/components/ResponsiveContainer';
+import { useIsMobile } from '@/hooks/useBreakpoint';
 
 export default function TasksPage() {
   const [showForm, setShowForm] = useState(false);
@@ -84,22 +86,26 @@ export default function TasksPage() {
     setShowForm(false);
     setEditingTask(null);
   };
+  const isMobile = useIsMobile();
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight">Task Management</h1>
-        <p className="text-muted-foreground mt-2">
+    <ResponsiveContainer maxWidth="2xl" density="compact">
+      {/* Header */}
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+          Task Management
+        </h1>
+        <p className="text-muted-foreground mt-2 text-sm md:text-base">
           Manage your tasks with optimized caching and instant updates.
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {/* Create/Edit Form Card */}
         {showForm && (
-          <Card>
-            <CardHeader>
-              <CardTitle>
+          <Card className="animate-scale-in">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg md:text-xl">
                 {editingTask ? 'Edit Task' : 'Create New Task'}
               </CardTitle>
             </CardHeader>
@@ -125,19 +131,20 @@ export default function TasksPage() {
 
         {/* Task List Card */}
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
+          <CardHeader className="pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <CardTitle>All Tasks</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
+                <CardTitle className="text-lg md:text-xl">All Tasks</CardTitle>
+                <p className="text-xs md:text-sm text-muted-foreground mt-1">
                   {pagination.totalCount} total tasks
                 </p>
               </div>
               <Button
                 onClick={handleCreateNew}
                 disabled={showForm || isCreating}
+                className="w-full sm:w-auto"
               >
-                {showForm ? 'Form Open' : 'Create New Task'}
+                {showForm ? 'Form Open' : isMobile ? 'Create' : 'Create New Task'}
               </Button>
             </div>
           </CardHeader>
@@ -150,18 +157,20 @@ export default function TasksPage() {
               onDelete={handleDelete}
             />
 
-            {/* Pagination Controls */}
+            {/* Pagination */}
             {pagination.totalPages > 1 && (
-              <Pagination
-                currentPage={pagination.page}
-                totalPages={pagination.totalPages}
-                onPageChange={setCurrentPage}
-                disabled={isLoading}
-              />
+              <div className="mt-4">
+                <Pagination
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                  onPageChange={setCurrentPage}
+                  disabled={isLoading}
+                />
+              </div>
             )}
           </CardContent>
         </Card>
       </div>
-    </div>
+    </ResponsiveContainer>
   );
 }
