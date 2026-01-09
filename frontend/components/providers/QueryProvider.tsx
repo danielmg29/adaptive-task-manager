@@ -2,11 +2,11 @@
  * React Query Provider
  * 
  * Configures global cache and query settings.
- * Wraps entire app to provide data management.
  */
 
 'use client';
 
+import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState, ReactNode } from 'react';

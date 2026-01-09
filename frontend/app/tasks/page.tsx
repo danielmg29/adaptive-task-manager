@@ -25,6 +25,7 @@ export default function TasksPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // ← Add this
 
   // Use React Query for data management
   const {
@@ -39,7 +40,7 @@ export default function TasksPage() {
     isDeleting,
   } = useCRUD('Task', {
     page: currentPage,
-    pageSize: 50,
+    pageSize: pageSize, // ← Use state
   });
 
   // Handle form submission
@@ -160,14 +161,51 @@ export default function TasksPage() {
 
             {/* Pagination */}
             {pagination.totalPages > 1 && (
-              <div className="mt-4">
-                <Pagination
-                  currentPage={pagination.page}
-                  totalPages={pagination.totalPages}
-                  onPageChange={setCurrentPage}
-                  disabled={isLoading}
-                />
-              </div>
+              <>
+                <div className="mt-4 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <Pagination
+                      currentPage={pagination.page}
+                      totalPages={pagination.totalPages}
+                      onPageChange={setCurrentPage}
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 hidden md:flex">
+                    <span className="text-sm text-muted-foreground">Items per page:</span>
+                    <select
+                      value={pageSize}
+                      onChange={(e) => {
+                        setPageSize(Number(e.target.value));
+                        setCurrentPage(1); // Reset to first page
+                      }}
+                      className="rounded border border-input bg-background px-2 py-1"
+                    >
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={25}>25</option>
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="mt-2 md:hidden">
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1); // Reset to first page
+                    }}
+                    className="mb-2 rounded border border-input bg-background px-2 py-1"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

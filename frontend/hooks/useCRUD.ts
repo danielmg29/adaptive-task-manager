@@ -39,7 +39,7 @@ export function useCRUD(modelName: string, options: UseCRUDOptions = {}) {
 
   const {
     page = 1,
-    pageSize = 50,
+    pageSize = 10,
     filters = {},
     enabled = true,
   } = options;

@@ -42,7 +42,7 @@ def create_repository(model_class: Type[T]) -> Dict[str, Any]:
     def get_all(
         filters: Optional[Dict[str, Any]] = None,
         page: int = 1,
-        page_size: int = 50,
+        page_size: int = 10,
         ordering: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
