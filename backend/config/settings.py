@@ -137,9 +137,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # CORS Configuration
 # WHAT: These settings allow our frontend (port 3000) to talk to backend (port 8000)
 # WHY: Browsers block cross-origin requests by default for security
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Next.js default port
-]
+CORS_ALLOWED_ORIGINS = os.getenv(
+       'DJANGO_CORS_ALLOWED_ORIGINS',
+       ''
+   ).split(',')
 
 # REST Framework Configuration  
 # WHAT: Default settings for our API
