@@ -13,6 +13,7 @@
 
 'use client';
 
+import React from 'react';
 import { useSchema } from '@/hooks/useSchema';
 import { FieldSchema } from '@/types/schema';
 import {

@@ -10,6 +10,7 @@
 
 'use client';
 
+import React from 'react';
 import { useState } from 'react';
 import { DynamicForm } from '@/components/DynamicForm';
 import { DynamicTable } from '@/components/DynamicTable';

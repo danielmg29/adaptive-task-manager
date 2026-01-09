@@ -1,6 +1,7 @@
 // WHAT: Reusable loading spinner
 // WHY: Consistent loading indicator across app
 
+import React from 'react';
 import { Loader2 } from "lucide-react";
 
 interface LoadingSpinnerProps {

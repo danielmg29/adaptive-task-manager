@@ -7,6 +7,7 @@
 
 'use client';
 
+import React from 'react';
 import { ReactNode } from 'react';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/utils';
